@@ -1,0 +1,11 @@
+Django==6.0.4
+djangorestframework==3.17.1
+Pillow==11.0.0
+python-dotenv==1.1.1
+pydantic==2.11.7
+httpx==0.28.1
+opencv-python==4.11.0.86
+numpy==2.2.6
+pyzbar==0.1.9
+pytesseract==0.3.13
+pyngrok==7.2.8

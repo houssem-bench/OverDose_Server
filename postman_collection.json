@@ -1,0 +1,320 @@
+{
+  "info": {
+    "_postman_id": "5ef4f993-e10e-4b56-a55d-4f2c5c4d1a7d",
+    "name": "Django Processing Pipeline API",
+    "description": "Minimal mock API collection for users, products, scan, risk, recommendation, and dashboard endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Amine\",\n  \"last_name\": \"Mahdi\",\n  \"email\": \"amine.mahdi@example.com\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"2000-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Allergies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/allergies/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "allergies",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Allergy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Peanuts\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/allergies/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "allergies",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "List User Allergies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/user-allergies/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "user-allergies",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User Allergy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": 1,\n  \"allergy\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/user-allergies/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "user-allergies",
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hydrating Cream\",\n  \"brand\": \"DermaCare\",\n  \"category\": \"cosmetic\",\n  \"ingredients\": [\"water\", \"glycerin\", \"fragrance\"],\n  \"barcode\": \"1234567890123\",\n  \"extraction_method\": \"barcode\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pipeline",
+      "item": [
+        {
+          "name": "Scan Pipeline (combined flow)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/scan/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "scan",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "Risk Evaluation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scan_id\": 1,\n  \"ingredients\": [\"ingredient_1\", \"ingredient_2\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/risk/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "risk",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "Recommendation Evaluation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scan_id\": 1,\n  \"risks\": [\n    {\"ingredient\": \"ingredient_1\", \"level\": \"medium\"},\n    {\"ingredient\": \"ingredient_2\", \"level\": \"high\"}\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recommend/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recommend",
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/summary/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "summary",
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

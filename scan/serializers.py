@@ -1,0 +1,56 @@
+from rest_framework import serializers
+
+from .models import Scan
+
+
+class ScanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scan
+        fields = ["id", "user", "image", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class ScanPipelineResponseSerializer(serializers.Serializer):
+    scan_id = serializers.IntegerField()
+    ingredients = serializers.ListField(child=serializers.CharField())
+    risks = serializers.ListField(child=serializers.DictField())
+    recommendations = serializers.ListField(child=serializers.DictField())
+
+
+class SegmentationRequestSerializer(serializers.Serializer):
+    segmentation_mode = serializers.ChoiceField(choices=["auto", "single", "multi"], default="auto")
+    expected_products = serializers.IntegerField(required=False, min_value=1)
+
+
+class BBoxSerializer(serializers.Serializer):
+    x = serializers.IntegerField()
+    y = serializers.IntegerField()
+    width = serializers.IntegerField()
+    height = serializers.IntegerField()
+
+
+class SegmentedProductSerializer(serializers.Serializer):
+    product_id = serializers.CharField()
+    label = serializers.CharField()
+    confidence = serializers.FloatField()
+    bbox = BBoxSerializer()
+    crop_url = serializers.CharField()
+
+
+class SegmentationResponseSerializer(serializers.Serializer):
+    session_id = serializers.CharField()
+    segmentation_mode = serializers.CharField()
+    expected_products = serializers.IntegerField(required=False, allow_null=True)
+    total_products = serializers.IntegerField()
+    products = SegmentedProductSerializer(many=True)
+
+
+class AnalyzeSelectedRequestSerializer(serializers.Serializer):
+    session_id = serializers.CharField()
+    product_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+
+
+class AnalysisBatchResponseSerializer(serializers.Serializer):
+    session_id = serializers.CharField()
+    analyzed_count = serializers.IntegerField()
+    results = serializers.ListField(child=serializers.DictField())

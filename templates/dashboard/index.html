@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline Dashboard</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --border: #e5e7eb;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #eef2ff, #f0fdf4);
+      color: var(--text);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+    h1 {
+      margin: 0 0 24px;
+      font-size: 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+    ul {
+      margin: 0;
+      padding-left: 16px;
+    }
+    li {
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #0b1220;
+      color: #d1d5db;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.85rem;
+      overflow: auto;
+    }
+    .controls {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-bottom: 12px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field label {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .field input,
+    .field select,
+    .field button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+    }
+    .field button {
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+    }
+    .field button.secondary {
+      background: #1f2937;
+    }
+    .products-picker {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+      max-height: 220px;
+      overflow: auto;
+    }
+    .products-picker h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+    .picker-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Processing Pipeline Dashboard</h1>
+    <div class="grid">
+      <section class="card">
+        <h2>Users</h2>
+        <ul>
+          {% for user in users %}
+            <li>#{{ user.id }} - {{ user.first_name }} {{ user.last_name }} ({{ user.email }})</li>
+          {% empty %}
+            <li>No users available.</li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Scans</h2>
+        <ul>
+          {% for scan in scans %}
+            <li>
+              #{{ scan.id }} - user:
+              {% if scan.user %}{{ scan.user.email }}{% else %}anonymous{% endif %}
+              - {{ scan.created_at }}
+            </li>
+          {% empty %}
+            <li>No scans available.</li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="card" style="grid-column: 1 / -1;">
+        <h2>Mock Pipeline Result</h2>
+        <pre>{{ sample_result_json }}</pre>
+      </section>
+
+      <section class="card" style="grid-column: 1 / -1;">
+        <h2>Mobile Flow Test (Single/Multi)</h2>
+
+        <div class="controls">
+          <div class="field">
+            <label for="scan-image">Image</label>
+            <input id="scan-image" type="file" accept="image/*" />
+          </div>
+          <div class="field">
+            <label for="scan-mode">Segmentation Mode</label>
+            <select id="scan-mode">
+              <option value="single">single</option>
+              <option value="auto">auto</option>
+              <option value="multi">multi</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="expected-products">Expected Products (optional)</label>
+            <input id="expected-products" type="number" min="1" placeholder="ex: 3" />
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="field">
+            <button id="btn-single">Run Single Direct (/api/scan/)</button>
+          </div>
+          <div class="field">
+            <button id="btn-segment" class="secondary">Run Segment Step (/api/scan/segment/)</button>
+          </div>
+          <div class="field">
+            <button id="btn-analyze-selected">Analyze Selected (/api/scan/selected/)</button>
+          </div>
+        </div>
+
+        <div class="products-picker" id="products-picker">
+          <h3>Segmented Products</h3>
+          <div id="products-list">No segmented products yet.</div>
+        </div>
+
+        <h3 style="margin: 10px 0 6px; font-size: 0.95rem; color: var(--accent);">Last API Response</h3>
+        <pre id="flow-output">{}</pre>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const imageInput = document.getElementById("scan-image");
+      const modeSelect = document.getElementById("scan-mode");
+      const expectedProductsInput = document.getElementById("expected-products");
+      const btnSingle = document.getElementById("btn-single");
+      const btnSegment = document.getElementById("btn-segment");
+      const btnAnalyzeSelected = document.getElementById("btn-analyze-selected");
+      const output = document.getElementById("flow-output");
+      const productsList = document.getElementById("products-list");
+      const templateCsrfToken = "{{ csrf_token }}";
+
+      let currentSessionId = null;
+
+      function renderOutput(data) {
+        output.textContent = JSON.stringify(data, null, 2);
+      }
+
+      function getSelectedProductIds() {
+        return Array.from(document.querySelectorAll("input[name='product-select']:checked"))
+          .map((el) => el.value);
+      }
+
+      function renderProducts(products) {
+        if (!Array.isArray(products) || products.length === 0) {
+          productsList.textContent = "No segmented products yet.";
+          return;
+        }
+
+        productsList.innerHTML = products
+          .map((p) => {
+            const bbox = p.bbox || {};
+            return (
+              '<label class="picker-item">' +
+                '<input type="checkbox" name="product-select" value="' + p.product_id + '" checked />' +
+                '<span>#' + p.product_id + ' | ' + (p.label || "product") +
+                ' | conf=' + (p.confidence ?? "-") +
+                ' | bbox=(' + (bbox.x ?? 0) + ',' + (bbox.y ?? 0) + ',' + (bbox.width ?? 0) + ',' + (bbox.height ?? 0) + ')</span>' +
+              '</label>'
+            );
+          })
+          .join("");
+      }
+
+      function requireImageFile() {
+        const file = imageInput.files && imageInput.files[0];
+        if (!file) {
+          renderOutput({ detail: "Please select an image first." });
+          return null;
+        }
+        return file;
+      }
+
+      function getCookie(name) {
+        const cookieValue = document.cookie
+          .split(";")
+          .map((v) => v.trim())
+          .find((v) => v.startsWith(name + "="));
+        return cookieValue ? decodeURIComponent(cookieValue.split("=")[1]) : null;
+      }
+
+      function getCsrfToken() {
+        return getCookie("csrftoken") || (templateCsrfToken !== "NOTPROVIDED" ? templateCsrfToken : "");
+      }
+
+      async function csrfFetch(url, options) {
+        const opts = options || {};
+        const headers = new Headers(opts.headers || {});
+        headers.set("X-CSRFToken", getCsrfToken());
+
+        return fetch(url, {
+          ...opts,
+          headers,
+          credentials: "same-origin",
+        });
+      }
+
+      btnSingle.addEventListener("click", async function () {
+        const file = requireImageFile();
+        if (!file) return;
+
+        const body = new FormData();
+        body.append("image", file);
+
+        const response = await csrfFetch("/api/scan/", { method: "POST", body });
+        const data = await response.json();
+        renderOutput({ status: response.status, data });
+      });
+
+      btnSegment.addEventListener("click", async function () {
+        const file = requireImageFile();
+        if (!file) return;
+
+        const body = new FormData();
+        body.append("image", file);
+        body.append("segmentation_mode", modeSelect.value);
+
+        const expected = expectedProductsInput.value.trim();
+        if (expected) {
+          body.append("expected_products", expected);
+        }
+
+        const response = await csrfFetch("/api/scan/segment/", { method: "POST", body });
+        const data = await response.json();
+        renderOutput({ status: response.status, data });
+
+        if (response.ok) {
+          currentSessionId = data.session_id;
+          renderProducts(data.products);
+        }
+      });
+
+      btnAnalyzeSelected.addEventListener("click", async function () {
+        if (!currentSessionId) {
+          renderOutput({ detail: "Run segment step first to get a session_id." });
+          return;
+        }
+
+        const productIds = getSelectedProductIds();
+        const response = await csrfFetch("/api/scan/selected/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: currentSessionId, product_ids: productIds }),
+        });
+        const data = await response.json();
+        renderOutput({ status: response.status, data });
+      });
+    })();
+  </script>
+</body>
+</html>
