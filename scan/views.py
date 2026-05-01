@@ -4,7 +4,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from scan.legacy.runtime import analyze_ingredients_from_image, analyze_selected_products, segment_image
+from scan.legacy.config import get_settings
+from scan.legacy.runtime import (
+	analyze_image,
+	analyze_selected_products,
+	get_cloudinary_service,
+	segment_image,
+	should_cleanup_cloudinary,
+)
 
 from recommendation.views import build_mock_recommendations
 from risk.views import build_mock_risks
@@ -34,14 +41,44 @@ class ScanPipelineAPIView(APIView):
 		image_path = scan.image.path if scan.image else None
 		image_url = scan.image.url if scan.image else None
 		ingredients: list[str] = []
+		analysis_payload: dict[str, object] | None = None
+		cloudinary_public_id: str | None = None
+		settings = get_settings()
+		cloudinary_service = get_cloudinary_service()
+		cloudinary_ready, _ = cloudinary_service.get_readiness()
+		cloudinary_folder = settings.cloudinary_folder or None
 
 		if image_path:
 			try:
-				ingredients = analyze_ingredients_from_image(
+				if cloudinary_ready:
+					upload_result = cloudinary_service.upload_file(
+						image_path,
+						folder=cloudinary_folder,
+					)
+					if upload_result:
+						image_url = upload_result.url
+						cloudinary_public_id = upload_result.public_id
+					else:
+						logger.warning("[CLOUDINARY] Upload failed for scan_id=%s", scan.id)
+
+				analysis = analyze_image(
 					scan_id=scan.id,
 					image_path=image_path,
 					image_url=image_url,
 				)
+				if cloudinary_public_id and should_cleanup_cloudinary(analysis.debug):
+					cloudinary_service.destroy(cloudinary_public_id)
+				ingredients = analysis.ingredients
+				analysis_payload = {
+					"source": analysis.source,
+					"confidence": analysis.confidence,
+					"category": analysis.category,
+					"name": analysis.name,
+					"brand": analysis.brand,
+					"barcode": analysis.barcode,
+					"lens_title": analysis.lens_title,
+					"debug": analysis.debug,
+				}
 			except Exception:
 				logger.exception("Real scan pipeline failed for scan_id=%s", scan.id)
 				ingredients = []
@@ -55,6 +92,8 @@ class ScanPipelineAPIView(APIView):
 			"risks": risk_result["risks"],
 			"recommendations": recommendation_result["recommendations"],
 		}
+		if analysis_payload is not None:
+			payload["analysis"] = analysis_payload
 		response_serializer = ScanPipelineResponseSerializer(data=payload)
 		response_serializer.is_valid(raise_exception=True)
 		return Response(response_serializer.data, status=status.HTTP_201_CREATED)

@@ -14,6 +14,7 @@ OFF_BARCODE_URL = "https://world.openfoodfacts.org/api/v2/product/{barcode}.json
 OBF_BARCODE_URL = "https://world.openbeautyfacts.org/api/v0/product/{barcode}.json"
 OFF_SEARCH_URL = "https://world.openfoodfacts.org/cgi/search.pl"
 OBF_SEARCH_URL = "https://world.openbeautyfacts.org/cgi/search.pl"
+OFF_MAX_ATTEMPTS = 15
 
 
 class ProductFactsProvider:
@@ -22,27 +23,42 @@ class ProductFactsProvider:
         self._settings = settings
         self._cache = cache
 
-    async def fetch_by_barcode(self, barcode: str) -> ProductFacts | None:
+    async def fetch_by_barcode(
+        self,
+        barcode: str,
+        *,
+        debug: dict[str, object] | None = None,
+    ) -> ProductFacts | None:
         cache_key = f"barcode::{barcode}"
         cached = self._cache.get(cache_key)
         if cached:
+            self._set_status(debug, "off_status", "cache_hit")
+            self._set_status(debug, "obf_status", "cache_hit")
             return ProductFacts(**cached)
 
         headers = {"User-Agent": self._settings.off_user_agent}
 
-        off_data = await self._http.get_json(OFF_BARCODE_URL.format(barcode=barcode), headers=headers)
+        off_data = await self._fetch_off_json(OFF_BARCODE_URL.format(barcode=barcode), headers=headers)
         if off_data and off_data.get("status") == 1:
             parsed = self._parse_off(off_data.get("product", {}))
             if parsed and parsed.ingredients:
+                self._set_status(debug, "off_status", "ok")
                 self._cache.set(cache_key, parsed.model_dump())
                 return parsed
+            self._set_status(debug, "off_status", "no_match")
+        else:
+            self._set_status(debug, "off_status", "error" if off_data is None else "no_match")
 
-        obf_data = await self._http.get_json(OBF_BARCODE_URL.format(barcode=barcode), headers=headers)
+        obf_data = await self._fetch_off_json(OBF_BARCODE_URL.format(barcode=barcode), headers=headers)
         if obf_data and obf_data.get("status") == 1:
             parsed = self._parse_obf(obf_data.get("product", {}))
             if parsed and parsed.ingredients:
+                self._set_status(debug, "obf_status", "ok")
                 self._cache.set(cache_key, parsed.model_dump())
                 return parsed
+            self._set_status(debug, "obf_status", "no_match")
+        else:
+            self._set_status(debug, "obf_status", "error" if obf_data is None else "no_match")
 
         return None
 
@@ -51,15 +67,20 @@ class ProductFactsProvider:
         name: str,
         *,
         preferred_category: Literal["food", "cosmetic"] | None = None,
+        debug: dict[str, object] | None = None,
     ) -> ProductFacts | None:
         candidates = self._prepare_name_candidates(name)
         if not candidates:
+            self._set_status(debug, "off_status", "skipped_no_name")
+            self._set_status(debug, "obf_status", "skipped_no_name")
             return None
 
         for candidate in candidates:
             cache_key = f"name::{candidate.lower()}"
             cached = self._cache.get(cache_key)
             if cached:
+                self._set_status(debug, "off_status", "cache_hit")
+                self._set_status(debug, "obf_status", "cache_hit")
                 return ProductFacts(**cached)
 
         headers = {"User-Agent": self._settings.off_user_agent}
@@ -82,22 +103,51 @@ class ProductFactsProvider:
                 }
 
                 if source == "off":
-                    data = await self._http.get_json(OFF_SEARCH_URL, params=params, headers=headers)
+                    data = await self._fetch_off_json(OFF_SEARCH_URL, params=params, headers=headers)
                     if data and data.get("products"):
                         best = self._pick_best_product(data.get("products", []), query=candidate)
                         parsed = self._parse_off(best)
                         if parsed and parsed.ingredients:
+                            self._set_status(debug, "off_status", "ok")
                             self._cache_name_result(candidates, parsed)
                             return parsed
+                        self._set_status(debug, "off_status", "no_match")
+                    else:
+                        self._set_status(debug, "off_status", "error" if data is None else "no_match")
                 else:
-                    data = await self._http.get_json(OBF_SEARCH_URL, params=params, headers=headers)
+                    data = await self._fetch_off_json(OBF_SEARCH_URL, params=params, headers=headers)
                     if data and data.get("products"):
                         best = self._pick_best_product(data.get("products", []), query=candidate)
                         parsed = self._parse_obf(best)
                         if parsed and parsed.ingredients:
+                            self._set_status(debug, "obf_status", "ok")
                             self._cache_name_result(candidates, parsed)
                             return parsed
+                        self._set_status(debug, "obf_status", "no_match")
+                    else:
+                        self._set_status(debug, "obf_status", "error" if data is None else "no_match")
 
+        return None
+
+    @staticmethod
+    def _set_status(debug: dict[str, object] | None, key: str, status: str) -> None:
+        if debug is None:
+            return
+        if debug.get(key) == "error":
+            return
+        debug[key] = status
+
+    async def _fetch_off_json(
+        self,
+        url: str,
+        *,
+        params: dict[str, object] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, Any] | None:
+        for _ in range(OFF_MAX_ATTEMPTS):
+            data = await self._http.get_json(url, params=params, headers=headers)
+            if data is not None:
+                return data
         return None
 
     def _cache_name_result(self, candidates: list[str], parsed: ProductFacts) -> None:

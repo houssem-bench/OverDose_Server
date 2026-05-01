@@ -16,11 +16,21 @@ class LensProvider:
         self._settings = settings
         self._cache = cache
 
-    async def search_titles(self, image_url: str, max_results: int = 5) -> list[str]:
+    async def search_titles(
+        self,
+        image_url: str,
+        max_results: int = 5,
+        *,
+        debug: dict[str, object] | None = None,
+    ) -> list[str]:
         cache_key = f"lens::{image_url}::{max_results}"
         cached = self._cache.get(cache_key)
         if cached:
-            return list(cached.get("titles", []))
+            titles = list(cached.get("titles", []))
+            if debug is not None:
+                debug["serpapi_status"] = "ok" if titles else "no_match"
+                debug["serpapi_match_count"] = len(titles)
+            return titles
 
         params = {
             "engine": "google_lens",
@@ -33,6 +43,8 @@ class LensProvider:
             params["country"] = self._settings.lens_country
         data = await self._http.get_json("https://serpapi.com/search.json", params=params)
         if not data:
+            if debug is not None:
+                debug["serpapi_status"] = "error"
             return []
 
         visual_matches = data.get("visual_matches", [])
@@ -43,5 +55,8 @@ class LensProvider:
                 titles.append(title)
 
         self._cache.set(cache_key, {"titles": titles})
+        if debug is not None:
+            debug["serpapi_status"] = "ok" if titles else "no_match"
+            debug["serpapi_match_count"] = len(titles)
         logger.info("[LENS] Provider returned matches=%s", len(titles))
         return titles
