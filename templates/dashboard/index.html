@@ -194,6 +194,35 @@
         <h3 style="margin: 10px 0 6px; font-size: 0.95rem; color: var(--accent);">Last API Response</h3>
         <pre id="flow-output">{}</pre>
       </section>
+
+      <section class="card" style="grid-column: 1 / -1;">
+        <h2>Recommendation Test</h2>
+        <p style="margin-top: 0; color: var(--muted);">Test manuel du module recommandation en réutilisant le même flux backend que le scan.</p>
+
+        <div class="controls">
+          <div class="field">
+            <label for="recommend-scan-id">Scan ID</label>
+            <input id="recommend-scan-id" type="number" min="1" value="{{ recommendation_scan_id }}" placeholder="ex: 1" />
+          </div>
+          <div class="field">
+            <button id="btn-recommend">Run Recommendation (/api/recommend/)</button>
+          </div>
+          <div class="field">
+            <button id="btn-recommend-refresh" class="secondary">Load Persisted Preview</button>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 12px;">
+          <label for="recommend-risks">Risks JSON</label>
+          <textarea id="recommend-risks" rows="8" style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: Consolas, 'Courier New', monospace; font-size: 0.9rem;">{{ recommendation_request_json }}</textarea>
+        </div>
+
+        <h3 style="margin: 10px 0 6px; font-size: 0.95rem; color: var(--accent);">Recommendation API Response</h3>
+        <pre id="recommend-output">{}</pre>
+
+        <h3 style="margin: 10px 0 6px; font-size: 0.95rem; color: var(--accent);">Persisted Batch Preview</h3>
+        <pre id="recommend-persistence-output">{}</pre>
+      </section>
     </div>
   </div>
 
@@ -205,7 +234,13 @@
       const btnSingle = document.getElementById("btn-single");
       const btnSegment = document.getElementById("btn-segment");
       const btnAnalyzeSelected = document.getElementById("btn-analyze-selected");
+      const recommendScanId = document.getElementById("recommend-scan-id");
+      const recommendRisks = document.getElementById("recommend-risks");
+      const btnRecommend = document.getElementById("btn-recommend");
+      const btnRecommendRefresh = document.getElementById("btn-recommend-refresh");
       const output = document.getElementById("flow-output");
+      const recommendOutput = document.getElementById("recommend-output");
+      const recommendPersistenceOutput = document.getElementById("recommend-persistence-output");
       const productsList = document.getElementById("products-list");
       const templateCsrfToken = "{{ csrf_token }}";
 
@@ -239,6 +274,39 @@
             );
           })
           .join("");
+      }
+
+      function renderRecommendOutput(data) {
+        recommendOutput.textContent = JSON.stringify(data, null, 2);
+      }
+
+      function renderRecommendPersistence(data) {
+        recommendPersistenceOutput.textContent = JSON.stringify(data, null, 2);
+      }
+
+      function parseRisksJson() {
+        const raw = recommendRisks.value.trim();
+        if (!raw) {
+          return [];
+        }
+
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+        if (parsed && Array.isArray(parsed.risks)) {
+          return parsed.risks;
+        }
+        throw new Error("Risks JSON must be an array or an object with a risks array.");
+      }
+
+      async function loadRecommendationPersistence(scanId) {
+        const response = await csrfFetch(`/api/dashboard/recommendation/?scan_id=${encodeURIComponent(scanId)}`, {
+          method: "GET",
+        });
+        const data = await response.json();
+        renderRecommendPersistence({ status: response.status, data });
+        return response.ok;
       }
 
       function requireImageFile() {
@@ -323,6 +391,47 @@
         });
         const data = await response.json();
         renderOutput({ status: response.status, data });
+      });
+
+      btnRecommend.addEventListener("click", async function () {
+        try {
+          const scanIdValue = recommendScanId.value.trim();
+          const scanId = Number.parseInt(scanIdValue, 10);
+          if (!scanIdValue || Number.isNaN(scanId)) {
+            renderRecommendOutput({ detail: "scan_id is required and must be a number." });
+            return;
+          }
+
+          const risks = parseRisksJson();
+          const response = await csrfFetch("/api/recommend/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ scan_id: scanId, risks }),
+          });
+          const data = await response.json();
+          renderRecommendOutput({ status: response.status, data });
+
+          if (response.ok) {
+            await loadRecommendationPersistence(scanId);
+          }
+        } catch (error) {
+          renderRecommendOutput({ detail: error.message || "Invalid recommendation payload." });
+        }
+      });
+
+      btnRecommendRefresh.addEventListener("click", async function () {
+        try {
+          const scanIdValue = recommendScanId.value.trim();
+          const scanId = Number.parseInt(scanIdValue, 10);
+          if (!scanIdValue || Number.isNaN(scanId)) {
+            renderRecommendPersistence({ detail: "scan_id is required and must be a number." });
+            return;
+          }
+
+          await loadRecommendationPersistence(scanId);
+        } catch (error) {
+          renderRecommendPersistence({ detail: error.message || "Could not load persisted recommendation." });
+        }
       });
     })();
   </script>
