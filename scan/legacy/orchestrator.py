@@ -46,6 +46,10 @@ class PipelineOrchestrator:
         detected_label: str,
     ) -> ProductAnalysis:
         debug: dict[str, object] = {}
+        debug.setdefault("serpapi_status", "not_called")
+        debug.setdefault("off_status", "not_called")
+        debug.setdefault("obf_status", "not_called")
+        debug.setdefault("grok_status", "not_called")
 
         barcode_start_ms = time.perf_counter()
         logger.info("[BARCODE] extract start product_id=%s source=crop path=%s", product_id, image_path)
@@ -85,7 +89,7 @@ class PipelineOrchestrator:
         debug["barcode_source"] = barcode_from if barcode else "none"
         if barcode:
             debug["barcode_format"] = barcode.format_type
-            facts = await self._facts.fetch_by_barcode(barcode.code)
+            facts = await self._facts.fetch_by_barcode(barcode.code, debug=debug)
             if facts and facts.ingredients:
                 logger.info("[BARCODE] success product_id=%s", product_id)
                 result = ProductAnalysis(
@@ -115,7 +119,7 @@ class PipelineOrchestrator:
             ready = True
 
         lens_start_ms = time.perf_counter()
-        lens = await self._lens.resolve_name(crop_url, detected_label)
+        lens = await self._lens.resolve_name(crop_url, detected_label, debug=debug)
         logger.info(
             "[LENS] resolve end product_id=%s elapsed_ms=%.1f found=%s",
             product_id,
@@ -158,7 +162,11 @@ class PipelineOrchestrator:
             if self._should_skip_raw_lens_fallback_after_groq(debug):
                 debug["lens_lookup"] = "skipped_raw_title_after_groq_structured_miss"
             else:
-                facts = await self._facts.fetch_by_name(lens.title, preferred_category=preferred_category)
+                facts = await self._facts.fetch_by_name(
+                    lens.title,
+                    preferred_category=preferred_category,
+                    debug=debug,
+                )
                 if facts and facts.ingredients:
                     logger.info("[LENS] success product_id=%s", product_id)
                     result = ProductAnalysis(
@@ -197,7 +205,11 @@ class PipelineOrchestrator:
 
             if ocr.name:
                 preferred_category = self._infer_preferred_category(ocr.category, detected_label)
-                facts = await self._facts.fetch_by_name(ocr.name, preferred_category=preferred_category)
+                facts = await self._facts.fetch_by_name(
+                    ocr.name,
+                    preferred_category=preferred_category,
+                    debug=debug,
+                )
                 if facts and facts.ingredients:
                     logger.info("[OCR] success via name lookup product_id=%s", product_id)
                     result = ProductAnalysis(
@@ -341,10 +353,12 @@ class PipelineOrchestrator:
         preferred_category: Literal["food", "cosmetic"] | None = None,
     ) -> tuple[Any, str] | None:
         if self._grok is None:
+            debug.setdefault("grok_status", "skipped_missing_service")
             return None
 
         extracted = await self._grok.extract_product_title_from_url_results(
-            url_results=[{"title": best_lens_title}]
+            url_results=[{"title": best_lens_title}],
+            debug=debug,
         )
         if not isinstance(extracted, dict):
             debug["grok_title_extraction"] = "none"
@@ -398,7 +412,11 @@ class PipelineOrchestrator:
                 continue
             seen.add(key)
 
-            facts = await self._facts.fetch_by_name(query, preferred_category=preferred_category)
+            facts = await self._facts.fetch_by_name(
+                query,
+                preferred_category=preferred_category,
+                debug=debug,
+            )
             if facts and facts.ingredients:
                 if not self._is_relevant_facts_match(
                     facts_name=facts.name,

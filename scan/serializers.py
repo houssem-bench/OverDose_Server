@@ -10,11 +10,23 @@ class ScanSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class ScanPipelineAnalysisSerializer(serializers.Serializer):
+    source = serializers.CharField()
+    confidence = serializers.FloatField()
+    category = serializers.CharField()
+    name = serializers.CharField()
+    brand = serializers.CharField(required=False, allow_null=True)
+    barcode = serializers.CharField(required=False, allow_null=True)
+    lens_title = serializers.CharField(required=False, allow_null=True)
+    debug = serializers.DictField()
+
+
 class ScanPipelineResponseSerializer(serializers.Serializer):
     scan_id = serializers.IntegerField()
     ingredients = serializers.ListField(child=serializers.CharField())
     risks = serializers.ListField(child=serializers.DictField())
     recommendations = serializers.ListField(child=serializers.DictField())
+    analysis = ScanPipelineAnalysisSerializer(required=False)
 
 
 class SegmentationRequestSerializer(serializers.Serializer):

@@ -75,15 +75,20 @@ class GrokService:
         self,
         *,
         url_results: list[dict[str, Any]],
+        debug: dict[str, object] | None = None,
     ) -> dict[str, Any] | None:
         ready, reason = self.get_readiness()
         if not ready:
             logger.info("[GROK] Title extraction skipped: %s", reason)
+            if debug is not None:
+                debug["grok_status"] = f"skipped_{reason}"
             return None
 
         input_text = self._pick_title_from_url_results(url_results)
         if not input_text:
             logger.info("[GROK] Title extraction skipped: no title in url_results")
+            if debug is not None:
+                debug["grok_status"] = "skipped_no_title"
             return None
 
         prompt = TITLE_EXTRACTION_PROMPT_TEMPLATE.replace("{INPUT_TEXT}", input_text)
@@ -109,19 +114,28 @@ class GrokService:
 
         data = await self._http.post_json(url, json_body=payload, headers=headers)
         if not data:
+            if debug is not None:
+                debug["grok_status"] = "error"
             return None
 
         choices = data.get("choices")
         if not isinstance(choices, list) or not choices:
+            if debug is not None:
+                debug["grok_status"] = "error"
             return None
 
         message = choices[0].get("message") if isinstance(choices[0], dict) else None
         content = message.get("content") if isinstance(message, dict) else None
         if not isinstance(content, str) or not content.strip():
+            if debug is not None:
+                debug["grok_status"] = "error"
             return None
 
         parsed = self._extract_json_object(content)
-        return self._normalize_title_extraction_payload(parsed)
+        normalized = self._normalize_title_extraction_payload(parsed)
+        if debug is not None:
+            debug["grok_status"] = "ok" if normalized is not None else "error"
+        return normalized
 
     @staticmethod
     def _extract_json_object(content: str) -> dict[str, Any] | None:

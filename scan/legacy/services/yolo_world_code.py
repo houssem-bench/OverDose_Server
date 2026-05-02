@@ -62,7 +62,7 @@ def yolo_box_filter_reason(
 class YOLOWorldProductWorkflow:
     def __init__(
         self,
-        model_name: str = "yolov8s-world.pt",
+        model_name: str = "yolov8l-world.pt",
         world_classes: Optional[List[str]] = None,
         conf_threshold: float = 0.02,
         iou_threshold: float = 0.2,

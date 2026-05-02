@@ -30,4 +30,4 @@ Thumbs.db
 
 #model
 *.pt
-.env
+env

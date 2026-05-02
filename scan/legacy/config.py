@@ -9,7 +9,11 @@ from dotenv import load_dotenv
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-load_dotenv(PROJECT_ROOT / ".env")
+_env_candidates = [PROJECT_ROOT / ".env", PROJECT_ROOT / "env"]
+for _env_path in _env_candidates:
+    if _env_path.exists():
+        load_dotenv(_env_path)
+        break
 
 
 def _to_bool(value: str | None, default: bool = False) -> bool:
@@ -31,10 +35,11 @@ class Settings:
 
     off_user_agent: str
     serpapi_key: str
-    public_base_url: str
-    enable_ngrok: bool
-    ngrok_auth_token: str
-    ngrok_domain: str
+    cloudinary_cloud_name: str
+    cloudinary_api_key: str
+    cloudinary_api_secret: str
+    cloudinary_folder: str
+    cloudinary_secure: bool
     lens_max_matches: int
     lens_country: str
     lens_safe: str
@@ -76,10 +81,11 @@ def get_settings() -> Settings:
         max_parallel_analyses=max(1, int(os.getenv("MAX_PARALLEL_ANALYSES", "4"))),
         off_user_agent=os.getenv("OFF_USER_AGENT", "ProductIntelligenceV2/1.0"),
         serpapi_key=os.getenv("SERPAPI_KEY", "").strip(),
-        public_base_url=(os.getenv("PUBLIC_BASE_URL") or os.getenv("NGROK_BASE_URL", "")).rstrip("/"),
-        enable_ngrok=_to_bool(os.getenv("ENABLE_NGROK"), default=False),
-        ngrok_auth_token=os.getenv("NGROK_AUTHTOKEN", "").strip(),
-        ngrok_domain=os.getenv("NGROK_DOMAIN", "").strip(),
+        cloudinary_cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME", "").strip(),
+        cloudinary_api_key=os.getenv("CLOUDINARY_API_KEY", "").strip(),
+        cloudinary_api_secret=os.getenv("CLOUDINARY_API_SECRET", "").strip(),
+        cloudinary_folder=os.getenv("CLOUDINARY_FOLDER", "").strip(),
+        cloudinary_secure=_to_bool(os.getenv("CLOUDINARY_SECURE"), default=True),
         lens_max_matches=max(1, int(os.getenv("LENS_MAX_MATCHES", "5"))),
         lens_country=os.getenv("LENS_COUNTRY", "TN").strip(),
         lens_safe=os.getenv("LENS_SAFE", "off").strip().lower(),

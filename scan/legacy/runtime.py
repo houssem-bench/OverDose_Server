@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from functools import lru_cache
 
 from scan.legacy.cache import SimpleTTLCache
@@ -9,11 +10,16 @@ from scan.legacy.http import HttpClient
 from scan.legacy.orchestrator import PipelineOrchestrator
 from scan.legacy.providers.lens_provider import LensProvider
 from scan.legacy.providers.product_facts_provider import ProductFactsProvider
+from scan.legacy.schemas import ProductAnalysis
 from scan.legacy.services.barcode_service import BarcodeService
+from scan.legacy.services.cloudinary_service import CloudinaryService
 from scan.legacy.services.grok_service import GrokService
 from scan.legacy.services.lens_service import LensService
 from scan.legacy.services.ocr_service import OCRService
 from scan.legacy.services.segmentation_service import SegmentationService
+
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=1)
@@ -46,7 +52,25 @@ def get_segmentation_service() -> SegmentationService:
     return SegmentationService(settings)
 
 
-def analyze_ingredients_from_image(*, scan_id: int, image_path: str, image_url: str | None) -> list[str]:
+@lru_cache(maxsize=1)
+def get_cloudinary_service() -> CloudinaryService:
+    settings = get_settings()
+    return CloudinaryService(settings)
+
+
+def should_cleanup_cloudinary(debug: dict[str, object] | None) -> bool:
+    if not isinstance(debug, dict):
+        return False
+
+    status_keys = ("serpapi_status", "off_status", "obf_status", "grok_status")
+    for key in status_keys:
+        if debug.get(key) == "error":
+            return False
+
+    return True
+
+
+def analyze_image(*, scan_id: int, image_path: str, image_url: str | None) -> ProductAnalysis:
     orchestrator = get_pipeline_orchestrator()
     crop_url = image_url or image_path
 
@@ -59,7 +83,11 @@ def analyze_ingredients_from_image(*, scan_id: int, image_path: str, image_url: 
             detected_label="product",
         )
     )
-    return result.ingredients
+    return result
+
+
+def analyze_ingredients_from_image(*, scan_id: int, image_path: str, image_url: str | None) -> list[str]:
+    return analyze_image(scan_id=scan_id, image_path=image_path, image_url=image_url).ingredients
 
 
 def segment_image(
@@ -82,6 +110,9 @@ def analyze_selected_products(*, session_id: str, product_ids: list[str]) -> lis
     settings = get_settings()
     segmentation_service = get_segmentation_service()
     orchestrator = get_pipeline_orchestrator()
+    cloudinary_service = get_cloudinary_service()
+    cloudinary_ready, _ = cloudinary_service.get_readiness()
+    cloudinary_folder = settings.cloudinary_folder or None
 
     session_products = segmentation_service.get_session_products(session_id)
     if session_products is None:
@@ -97,14 +128,35 @@ def analyze_selected_products(*, session_id: str, product_ids: list[str]) -> lis
         async def run_one(product_id: str) -> dict[str, object]:
             async with semaphore:
                 product = session_products[product_id]
+                upload_result = None
+                crop_url = product.crop_url
+
+                if cloudinary_ready:
+                    upload_result = await asyncio.to_thread(
+                        cloudinary_service.upload_file,
+                        product.crop_path,
+                        folder=cloudinary_folder,
+                    )
+                    if upload_result:
+                        crop_url = upload_result.url
+                    else:
+                        logger.warning(
+                            "[CLOUDINARY] Upload failed for product_id=%s",
+                            product.product_id,
+                        )
                 try:
                     result = await orchestrator.analyze_product(
                         product_id=product.product_id,
                         image_path=product.crop_path,
                         original_image_path=product.source_image_path,
-                        crop_url=product.crop_url,
+                        crop_url=crop_url,
                         detected_label=product.label,
                     )
+                    if upload_result and should_cleanup_cloudinary(result.debug):
+                        await asyncio.to_thread(
+                            cloudinary_service.destroy,
+                            upload_result.public_id,
+                        )
                     return result.model_dump()
                 except Exception as exc:  # pylint: disable=broad-except
                     return {
