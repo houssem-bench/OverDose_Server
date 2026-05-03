@@ -13,6 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "gender",
             "date_of_birth",
+            "notes",
             "created_at",
             "updated_at",
         ]
@@ -31,6 +32,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "email",
             "gender",
             "date_of_birth",
+            "notes",
             "password",
             "created_at",
             "updated_at",
@@ -54,3 +56,7 @@ class UserAllergySerializer(serializers.ModelSerializer):
         model = UserAllergy
         fields = ["id", "user", "allergy"]
         read_only_fields = ["id"]
+
+
+class CurrentUserAllergyUpdateSerializer(serializers.Serializer):
+    allergy_ids = serializers.ListField(child=serializers.IntegerField(min_value=1), allow_empty=True)
