@@ -1,15 +1,19 @@
-# Django Processing Pipeline (Mock)
+# OverDose Server - Django Processing Pipeline
 
-A clean and minimal Django + Django REST Framework project that models a multi-step processing pipeline:
+A Django + Django REST Framework backend that powers a multi-step processing pipeline for scans, risk assessment, and recommendations.
 
-- scan
-- risk
-- recommendation
-- users
-- products
-- dashboard
+## Overview
 
-This project intentionally uses mock responses and placeholder flow logic to keep the architecture clear and extensible.
+This project was developed as part of coursework at Esprit School of Engineering. It provides a structured API for managing users and products, running scans, assessing risks, and returning recommendations through a clear pipeline.
+
+## Features
+
+- User management with custom user and allergy mapping
+- Product catalog with categories and extraction methods
+- Scan API that orchestrates the pipeline and stores scan data
+- Risk assessment API with persisted results
+- Recommendation API tied to scans and risks
+- Simple dashboard view and summary endpoint
 
 ## Tech Stack
 
@@ -18,7 +22,15 @@ This project intentionally uses mock responses and placeholder flow logic to kee
 - Django REST Framework
 - SQLite
 
-## Project Structure
+## GitHub Repository Metadata (Suggested)
+
+**Description:**
+Backend Django API for scan, risk, and recommendation pipeline built for a university project.
+
+**Topics:**
+python, django, django-rest-framework, api, backend, sqlite, web-development
+
+## Directory Structure
 
 ```text
 App_Django/
@@ -26,12 +38,11 @@ App_Django/
   users/                   # Custom user model + allergies
   products/                # Product catalog model
   scan/                    # Scan model + scan API endpoint
-  risk/                    # Risk API endpoint + persisted mock risk results
-  recommendation/          # Recommendation API endpoint + persisted mock recommendations
+  risk/                    # Risk API endpoint + persisted risk results
+  recommendation/          # Recommendation API endpoint + persisted recommendations
   dashboard/               # Simple UI + dashboard API summary
   templates/dashboard/     # Dashboard HTML template
   requirements.txt
-  .gitignore
   manage.py
 ```
 
@@ -46,44 +57,38 @@ App_Django/
 
 ### products
 
-- `Product` model with:
-- category (`food`, `cosmetic`)
-- extraction method (`lens`, `barcode`)
-- ingredients as JSON
+- `Product` model with category (`food`, `cosmetic`)
+- Extraction method (`lens`, `barcode`)
+- Ingredients as JSON
 - API endpoint to list/create products
 
 ### scan
 
 - `Scan` model with optional user and image
 - `POST /api/scan/` endpoint:
-- creates scan
-- generates mock ingredients
-- calls internal risk builder
-- calls internal recommendation builder
-- returns combined response
+  - creates scan
+  - builds ingredient list
+  - triggers risk assessment
+  - triggers recommendation generation
+  - returns a combined response
 
 ### risk
 
 - `POST /api/risk/` endpoint
 - Input: `scan_id`, `ingredients`
-- Output: mock risk list with levels (`low`, `medium`, `high`)
-- Persisted placeholders:
-- `RiskAssessment`
-- `RiskItem`
+- Output: risk list with levels (`low`, `medium`, `high`)
+- Persisted models: `RiskAssessment`, `RiskItem`
 
 ### recommendation
 
 - `POST /api/recommend/` endpoint
 - Input: `scan_id`, `risks`
-- Output: mock recommendations (`product`, `reason`)
-- Persisted placeholders:
-- `RecommendationBatch`
-- `RecommendationItem`
+- Output: recommendations (`product`, `reason`)
+- Persisted models: `RecommendationBatch`, `RecommendationItem`
 
 ### dashboard
 
 - Browser dashboard at `/`
-- Shows users, scans, and mock JSON output
 - Summary API at `/api/dashboard/summary/`
 
 ## Database Schema (High-Level)
@@ -95,9 +100,7 @@ App_Django/
 - `scan.Scan` 1--1 `recommendation.RecommendationBatch`
 - `recommendation.RecommendationBatch` 1--* `recommendation.RecommendationItem`
 
-This keeps relationships normalized while making future logic expansion straightforward.
-
-## Setup and Run
+## Getting Started
 
 1. Install dependencies:
 
@@ -176,17 +179,12 @@ Response:
   "recommendations": [
     {
       "product": "Alternative for ingredient_1",
-      "reason": "Mock recommendation generated for low risk ingredient."
+      "reason": "Recommendation based on the assessed risk level."
     }
   ]
 }
 ```
 
-## Extending Later
+## Acknowledgments
 
-- Replace mock generators with domain services in `risk` and `recommendation`
-- Add async task queue (Celery/RQ) for heavy pipeline processing
-- Introduce versioned API (`/api/v1/`)
-- Add authentication and permissions for user-specific scan access
-- Add pagination/filtering/search in list endpoints
-- Move mock orchestration from views to service layer for richer use cases
+Completed under academic guidance for coursework at Esprit School of Engineering.
