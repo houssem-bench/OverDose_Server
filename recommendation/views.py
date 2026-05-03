@@ -281,8 +281,8 @@ class ResearchReportAPIView(APIView):
 			# Parse the report
 			parsed = parser.parse_report(report)
 
-			raw_top_k = report.get("search_top_k", 5)
-			search_top_k = raw_top_k if isinstance(raw_top_k, int) else 5
+			raw_top_k = report.get("search_top_k", 1)
+			search_top_k = raw_top_k if isinstance(raw_top_k, int) else 1
 			search_top_k = max(1, min(20, search_top_k))
 
 			results_payload = {
@@ -381,7 +381,7 @@ class SearchAlternativesAPIView(APIView):
 			
 			product_name = request.data.get("product_name")
 			product_type = request.data.get("product_type", "cosmetics")
-			top_k = request.data.get("top_k", 5)
+			top_k = request.data.get("top_k", 1)
 			
 			if not product_name:
 				return Response(

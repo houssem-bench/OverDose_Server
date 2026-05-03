@@ -51,7 +51,7 @@ class ProductSearchAgent:
         self.settings = get_settings()
         self.tunisia_scraper = TunisiaScraper()
 
-    def search_product_alternatives(self, product_name: str, product_type: str = "cosmetics", top_k: int = 5) -> Dict:
+    def search_product_alternatives(self, product_name: str, product_type: str = "cosmetics", top_k: int = 1) -> Dict:
         """Search for alternative products available in Tunisia."""
         log_agent_action(
             "SearchAgent",
