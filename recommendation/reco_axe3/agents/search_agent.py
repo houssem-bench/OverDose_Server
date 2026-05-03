@@ -348,7 +348,7 @@ class ProductSearchAgent:
 
         return "face cleanser"
 
-    def batch_search(self, products: List[Dict], top_k: int = 5) -> List[Dict]:
+    def batch_search(self, products: List[Dict], top_k: int = 1) -> List[Dict]:
         """Search for alternatives for multiple products."""
         batch_results = []
         for product in products:
