@@ -1,6 +1,3 @@
-import sys
-import os
-from pathlib import Path
 from typing import Optional, Dict, Any, List
 
 from rest_framework import status
@@ -17,11 +14,9 @@ from .serializers import (
 	RecommendationResponseSerializer,
 )
 
-# Import from Overdose_Reco-axe3 project
-sys.path.insert(0, os.path.join(str(Path(__file__).parent.parent.parent), "Overdose_Reco-axe3"))
 try:
-	from src.agents.search_agent import ProductSearchAgent
-	from src.utils.report_parser import ReportParser
+	from .reco_axe3.agents.search_agent import ProductSearchAgent
+	from .reco_axe3.utils.report_parser import ReportParser
 	_HAS_SEARCH_AGENT = True
 except ImportError:
 	_HAS_SEARCH_AGENT = False
@@ -258,7 +253,7 @@ class ResearchReportAPIView(APIView):
 			return Response(
 				{
 					"status": "error",
-					"message": "Search agent not available. Please ensure Overdose_Reco-axe3 project is accessible.",
+					"message": "Search agent not available. Please ensure the local recommendation support package is installed.",
 					"report_id": request.data.get("report_id"),
 					"results": None,
 					"search": {"triggered": False, "count": 0, "results": [], "errors": ["Search module unavailable"]},
