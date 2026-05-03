@@ -1,0 +1,173 @@
+{
+  "products": [
+    {
+      "product_id": "1",
+      "product_name": "Bomb Cosmetics Body Wash - Mango & Vanilla",
+      "usage": "cosmetics",
+      "exposure_type": ["skin"],
+      "drivers": ["AMMONIUM LAURETH SULFATE", "LIMONENE"],
+      "ingredients": {
+        "chemicals_evaluated": [
+          {
+            "name": "AMMONIUM LAURETH SULFATE",
+            "uid": "chem_als_001",
+            "cas": "32612-48-9",
+            "verdict": {"danger_level": "HIGH", "justification": ["Danger signal with skin and eye hazards"]}
+          },
+          {
+            "name": "LIMONENE",
+            "uid": "cosing_138_86_3",
+            "cas": "138-86-3",
+            "verdict": {"danger_level": "HIGH", "justification": ["Danger signal - fragrance allergen"]}
+          }
+        ],
+        "safe_skipped": [{"name": "AQUA", "reason": "Water"}],
+        "unverified_chemicals": [{"name": "PARFUM", "reason": "Not found in KG", "flag": "unverified_chemical"}]
+      },
+      "combination_risks": {
+        "organ_overlap": {
+          "has_overlap": true,
+          "verdict_escalation": "HIGH",
+          "overlapping_organs": [
+            {"organ": "skin", "chemicals": ["AMMONIUM LAURETH SULFATE", "COCAMIDOPROPYL BETAINE", "LIMONENE", "LINALOOL"], "count": 4}
+          ]
+        },
+        "cumulative_presence": {"checked": false, "note": "Single product"}
+      },
+      "summary": {"total_ingredients": 12, "chemicals_evaluated": 6, "high": 2, "moderate": 3, "unknown": 1}
+    },
+    {
+      "product_id": "2",
+      "product_name": "L'Oréal Silver Shampoo",
+      "usage": "cosmetics",
+      "exposure_type": ["skin"],
+      "drivers": ["SODIUM LAURETH SULFATE", "LIMONENE", "SALICYLIC ACID"],
+      "ingredients": {
+        "chemicals_evaluated": [
+          {
+            "name": "SODIUM LAURETH SULFATE",
+            "uid": "pest_0388830496",
+            "cas": "151-21-3",
+            "verdict": {"danger_level": "HIGH", "justification": ["Danger signal with skin and eye hazards"]}
+          },
+          {
+            "name": "LIMONENE",
+            "uid": "cosing_138_86_3",
+            "cas": "138-86-3",
+            "verdict": {"danger_level": "HIGH", "justification": ["Danger signal - fragrance allergen"]}
+          },
+          {
+            "name": "SALICYLIC ACID",
+            "uid": "chem_sa_001",
+            "cas": "69-72-7",
+            "verdict": {"danger_level": "HIGH", "justification": ["Danger signal - eye damage"]}
+          }
+        ],
+        "safe_skipped": [{"name": "AQUA", "reason": "Water"}, {"name": "SODIUM CHLORIDE", "reason": "Salt"}],
+        "unverified_chemicals": [{"name": "CI 60730", "reason": "Limited KG data", "flag": "unverified_chemical"}]
+      },
+      "combination_risks": {
+        "organ_overlap": {
+          "has_overlap": true,
+          "verdict_escalation": "HIGH",
+          "overlapping_organs": [
+            {"organ": "skin", "chemicals": ["SODIUM LAURETH SULFATE", "COCO-BETAINE", "LIMONENE", "SALICYLIC ACID", "BENZYL SALICYLATE", "HEXYL CINNAMAL"], "count": 6},
+            {"organ": "eyes", "chemicals": ["SODIUM LAURETH SULFATE", "SALICYLIC ACID"], "count": 2},
+            {"organ": "liver", "chemicals": ["SODIUM LAURETH SULFATE", "PHENOXYETHANOL"], "count": 2}
+          ]
+        },
+        "cumulative_presence": {"checked": true, "note": "PARFUM appears in 2 products"}
+      },
+      "summary": {"total_ingredients": 28, "chemicals_evaluated": 12, "high": 3, "moderate": 5, "unknown": 2}
+    }
+  ],
+  
+  "global_summary": {
+    "total_products": 2,
+    "products_to_avoid": 2,
+    "products_to_reduce": 0,
+    "products_safe": 0,
+    "products_unknown": 0,
+    "unique_chemicals_found": 15,
+    "critical_chemicals": [],
+    "high_chemicals": ["AMMONIUM LAURETH SULFATE", "SODIUM LAURETH SULFATE", "LIMONENE", "SALICYLIC ACID"],
+    "organs_under_pressure": ["skin", "eyes", "liver", "respiratory_system"],
+    "depth_used": "full",
+    
+    "organ_global_analysis": {
+      "skin": {
+        "unique_chemicals": [
+          "AMMONIUM LAURETH SULFATE",
+          "COCAMIDOPROPYL BETAINE",
+          "SODIUM LAURETH SULFATE",
+          "COCO-BETAINE",
+          "LIMONENE",
+          "LINALOOL",
+          "SALICYLIC ACID",
+          "BENZYL SALICYLATE",
+          "HEXYL CINNAMAL",
+          "PARFUM"
+        ],
+        "total_unique_count": 10,
+        "chemical_frequency": {
+          "AMMONIUM LAURETH SULFATE": 1,
+          "COCAMIDOPROPYL BETAINE": 1,
+          "SODIUM LAURETH SULFATE": 1,
+          "COCO-BETAINE": 1,
+          "LIMONENE": 2,
+          "LINALOOL": 1,
+          "SALICYLIC ACID": 1,
+          "BENZYL SALICYLATE": 1,
+          "HEXYL CINNAMAL": 1,
+          "PARFUM": 1
+        },
+        "products_per_chemical": {
+          "AMMONIUM LAURETH SULFATE": ["1"],
+          "COCAMIDOPROPYL BETAINE": ["1"],
+          "SODIUM LAURETH SULFATE": ["2"],
+          "COCO-BETAINE": ["2"],
+          "LIMONENE": ["1", "2"],
+          "LINALOOL": ["1"],
+          "SALICYLIC ACID": ["2"],
+          "BENZYL SALICYLATE": ["2"],
+          "HEXYL CINNAMAL": ["2"],
+          "PARFUM": ["2"]
+        }
+      },
+      "eyes": {
+        "unique_chemicals": ["AMMONIUM LAURETH SULFATE", "COCAMIDOPROPYL BETAINE", "SODIUM LAURETH SULFATE", "SALICYLIC ACID"],
+        "total_unique_count": 4,
+        "chemical_frequency": {
+          "AMMONIUM LAURETH SULFATE": 1,
+          "COCAMIDOPROPYL BETAINE": 1,
+          "SODIUM LAURETH SULFATE": 1,
+          "SALICYLIC ACID": 1
+        },
+        "products_per_chemical": {
+          "AMMONIUM LAURETH SULFATE": ["1"],
+          "COCAMIDOPROPYL BETAINE": ["1"],
+          "SODIUM LAURETH SULFATE": ["2"],
+          "SALICYLIC ACID": ["2"]
+        }
+      },
+      "liver": {
+        "unique_chemicals": ["SODIUM LAURETH SULFATE", "PHENOXYETHANOL"],
+        "total_unique_count": 2,
+        "chemical_frequency": {
+          "SODIUM LAURETH SULFATE": 1,
+          "PHENOXYETHANOL": 1
+        },
+        "products_per_chemical": {
+          "SODIUM LAURETH SULFATE": ["2"],
+          "PHENOXYETHANOL": ["2"]
+        }
+      },
+      "respiratory_system": {
+        "unique_chemicals": ["LIMONENE"],
+        "total_unique_count": 1,
+        "chemical_frequency": {"LIMONENE": 1},
+        "products_per_chemical": {"LIMONENE": ["2"]}
+      }
+    }
+  }
+}

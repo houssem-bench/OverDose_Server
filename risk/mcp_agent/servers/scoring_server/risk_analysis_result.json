@@ -1,0 +1,235 @@
+{
+  "product_risk_results": [
+    {
+      "product_id": "1",
+      "product_name": "Bomb Cosmetics Body Wash - Mango & Vanilla",
+      "ingredient_scores": [
+        {
+          "name": "AMMONIUM LAURETH SULFATE",
+          "danger_level": "HIGH",
+          "base_score": 3.0,
+          "weighted_score": 1.5,
+          "confidence": 0.5,
+          "justification": [
+            "Danger signal with skin and eye hazards"
+          ]
+        },
+        {
+          "name": "LIMONENE",
+          "danger_level": "HIGH",
+          "base_score": 3.0,
+          "weighted_score": 1.5,
+          "confidence": 0.5,
+          "justification": [
+            "Danger signal - fragrance allergen"
+          ]
+        }
+      ],
+      "ingredient_risk_sum": 3.0,
+      "top_ingredient_score": 1.5,
+      "organ_overlap_results": [
+        {
+          "organ": "skin",
+          "organ_id": "skin",
+          "organ_name_full": "Skin / Integumentary System",
+          "priority_weight": 3.0,
+          "priority_tier": 4,
+          "cumulation_multiplier": 1.1,
+          "vitality": "not_immediately_life_critical",
+          "reversibility": "mostly_reversible",
+          "chemicals": [
+            "AMMONIUM LAURETH SULFATE",
+            "COCAMIDOPROPYL BETAINE",
+            "LIMONENE",
+            "LINALOOL"
+          ],
+          "chemical_count": 4,
+          "synergy_factor": 1.5,
+          "chem_score_sum": 7.0,
+          "overlap_score": 34.65,
+          "risk_level": "CRITICAL"
+        }
+      ],
+      "overlap_risk_total": 34.65,
+      "max_overlap_score": 34.65,
+      "total_product_score": 20.325,
+      "verdict": "CRITICAL",
+      "summary": {
+        "total_ingredients": 12,
+        "chemicals_evaluated": 6,
+        "high": 2,
+        "moderate": 3,
+        "unknown": 1
+      },
+      "drivers": [
+        "AMMONIUM LAURETH SULFATE",
+        "LIMONENE"
+      ]
+    },
+    {
+      "product_id": "2",
+      "product_name": "L'Oréal Silver Shampoo",
+      "ingredient_scores": [
+        {
+          "name": "SODIUM LAURETH SULFATE",
+          "danger_level": "HIGH",
+          "base_score": 3.0,
+          "weighted_score": 1.5,
+          "confidence": 0.5,
+          "justification": [
+            "Danger signal with skin and eye hazards"
+          ]
+        },
+        {
+          "name": "LIMONENE",
+          "danger_level": "HIGH",
+          "base_score": 3.0,
+          "weighted_score": 1.5,
+          "confidence": 0.5,
+          "justification": [
+            "Danger signal - fragrance allergen"
+          ]
+        },
+        {
+          "name": "SALICYLIC ACID",
+          "danger_level": "HIGH",
+          "base_score": 3.0,
+          "weighted_score": 1.5,
+          "confidence": 0.5,
+          "justification": [
+            "Danger signal - eye damage"
+          ]
+        }
+      ],
+      "ingredient_risk_sum": 4.5,
+      "top_ingredient_score": 1.5,
+      "organ_overlap_results": [
+        {
+          "organ": "liver",
+          "organ_id": "liver",
+          "organ_name_full": "Liver",
+          "priority_weight": 9.0,
+          "priority_tier": 2,
+          "cumulation_multiplier": 2.0,
+          "vitality": "essential_for_survival",
+          "reversibility": "partially_reversible",
+          "chemicals": [
+            "SODIUM LAURETH SULFATE",
+            "PHENOXYETHANOL"
+          ],
+          "chemical_count": 2,
+          "synergy_factor": 1.2,
+          "chem_score_sum": 3.5,
+          "overlap_score": 75.6,
+          "risk_level": "CRITICAL"
+        },
+        {
+          "organ": "skin",
+          "organ_id": "skin",
+          "organ_name_full": "Skin / Integumentary System",
+          "priority_weight": 3.0,
+          "priority_tier": 4,
+          "cumulation_multiplier": 1.1,
+          "vitality": "not_immediately_life_critical",
+          "reversibility": "mostly_reversible",
+          "chemicals": [
+            "SODIUM LAURETH SULFATE",
+            "COCO-BETAINE",
+            "LIMONENE",
+            "SALICYLIC ACID",
+            "BENZYL SALICYLATE",
+            "HEXYL CINNAMAL"
+          ],
+          "chemical_count": 6,
+          "synergy_factor": 1.5,
+          "chem_score_sum": 10.5,
+          "overlap_score": 51.975,
+          "risk_level": "CRITICAL"
+        },
+        {
+          "organ": "eyes",
+          "organ_id": "eyes",
+          "organ_name_full": "Eyes / Ocular System",
+          "priority_weight": 3.0,
+          "priority_tier": 4,
+          "cumulation_multiplier": 1.2,
+          "vitality": "not_immediately_life_critical",
+          "reversibility": "mostly_irreversible",
+          "chemicals": [
+            "SODIUM LAURETH SULFATE",
+            "SALICYLIC ACID"
+          ],
+          "chemical_count": 2,
+          "synergy_factor": 1.2,
+          "chem_score_sum": 3.0,
+          "overlap_score": 12.96,
+          "risk_level": "CRITICAL"
+        }
+      ],
+      "overlap_risk_total": 140.535,
+      "max_overlap_score": 75.6,
+      "total_product_score": 74.767,
+      "verdict": "CRITICAL",
+      "summary": {
+        "total_ingredients": 28,
+        "chemicals_evaluated": 12,
+        "high": 3,
+        "moderate": 5,
+        "unknown": 2
+      },
+      "drivers": [
+        "SODIUM LAURETH SULFATE",
+        "LIMONENE",
+        "SALICYLIC ACID"
+      ]
+    }
+  ],
+  "ranked_products": [
+    {
+      "rank": 1,
+      "product_id": "2",
+      "product_name": "L'Oréal Silver Shampoo",
+      "total_product_score": 74.767,
+      "verdict": "CRITICAL"
+    },
+    {
+      "rank": 2,
+      "product_id": "1",
+      "product_name": "Bomb Cosmetics Body Wash - Mango & Vanilla",
+      "total_product_score": 20.325,
+      "verdict": "CRITICAL"
+    }
+  ],
+  "highest_risk_product": {
+    "product_id": "2",
+    "product_name": "L'Oréal Silver Shampoo",
+    "score": 74.767,
+    "verdict": "CRITICAL"
+  },
+  "recurrence_risks": [
+    {
+      "chemical": "LIMONENE",
+      "frequency": 2,
+      "products": [
+        "1",
+        "2"
+      ],
+      "danger_level": "HIGH",
+      "recurrence_score": 6.0
+    }
+  ],
+  "global_organs_at_risk": [
+    "skin",
+    "eyes",
+    "liver",
+    "respiratory_system"
+  ],
+  "global_high_chemicals": [
+    "AMMONIUM LAURETH SULFATE",
+    "SODIUM LAURETH SULFATE",
+    "LIMONENE",
+    "SALICYLIC ACID"
+  ],
+  "user_type_applied": null,
+  "llm_report": "**Chemical Risk Analysis Report**\n\n**1. Executive Summary**\n\nThis report analyzes the chemical risks associated with two personal care products: Bomb Cosmetics Body Wash - Mango & Vanilla and L'Oréal Silver Shampoo. Both products have been classified as CRITICAL, indicating a high level of risk to human health. The highest risk product is L'Oréal Silver Shampoo, with a total product score of 74.767. The key conclusion is that both products contain hazardous chemicals that require immediate attention.\n\n**2. Individual Ingredient Risk**\n\nThe following table lists the HIGH/CRITICAL ingredients found in each product, along with their scores and explanations:\n\n| Product | Ingredient | Score | Why it is dangerous |\n| --- | --- | --- | --- |\n| Bomb Cosmetics Body Wash - Mango & Vanilla | AMMONIUM LAURETH SULFATE | 1.5 | May cause skin irritation and allergic reactions. |\n|  | LIMONENE | 1.5 | May cause skin irritation, allergic reactions, and respiratory problems. |\n| L'Oréal Silver Shampoo | SODIUM LAURETH SULFATE | 2.0 | May cause skin irritation, allergic reactions, and respiratory problems. |\n|  | LIMONENE | 2.0 | May cause skin irritation, allergic reactions, and respiratory problems. |\n|  | SALICYLIC ACID | 0.5 | May cause skin irritation and allergic reactions, but at a lower risk level. |\n\n**3. Cross-Product Recurrence Risk**\n\nThe following table lists the chemicals that appear in multiple products, their recurrence scores, and explanations:\n\n| Chemical | Frequency | Products | Recurrence Score | Why repeated exposure is more dangerous |\n| --- | --- | --- | --- | --- |\n| LIMONENE | 2 | 1, 2 | 6.0 | Repeated exposure to LIMONENE may increase the risk of skin irritation, allergic reactions, and respiratory problems. |\n\n**4. Cumulative Organ Overlap Risk**\n\nThe following table lists the organs targeted by multiple chemicals, their overlap scores, and risk levels:\n\n| Organ | Overlap Score | Risk Level | What damage to that organ means clinically |\n| --- | --- | --- | --- |\n| Skin | 5.0 | HIGH | Repeated exposure to hazardous chemicals may cause skin irritation, allergic reactions, and long-term damage. |\n| Respiratory System | 2.0 | MEDIUM | Repeated exposure to hazardous chemicals may cause respiratory problems, including asthma and other breathing difficulties. |\n\n**5. Product Risk Ranking**\n\nThe following table ranks the products by their total scores, from highest to lowest:\n\n| Rank | Product Name | Total Product Score | Verdict |\n| --- | --- | --- | --- |\n| 1 | L'Oréal Silver Shampoo | 74.767 | CRITICAL |\n| 2 | Bomb Cosmetics Body Wash - Mango & Vanilla | 20.325 | CRITICAL |\n\n**6. Recommendations**\n\nBased on the analysis, we recommend the following actions:\n\n* Stop using L'Oréal Silver Shampoo immediately due to its high risk score and presence of hazardous chemicals.\n* Avoid using products containing LIMONENE, as it is a recurring hazard in multiple products.\n* Consider substituting products with safer alternatives that do not contain hazardous chemicals like SODIUM LAURETH SULFATE and SALICYLIC ACID.\n* Conduct further research on the long-term effects of repeated exposure to hazardous chemicals and develop strategies to mitigate these risks."
+}
