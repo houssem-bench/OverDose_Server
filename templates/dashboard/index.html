@@ -212,9 +212,20 @@
           </div>
         </div>
 
+        <div class="controls">
+          <div class="field" style="grid-column: 1 / -1;">
+            <button id="btn-recommend-report" class="secondary">Run Report Search (/api/recommend/research/report)</button>
+          </div>
+        </div>
+
         <div class="field" style="margin-bottom: 12px;">
           <label for="recommend-risks">Risks JSON</label>
           <textarea id="recommend-risks" rows="8" style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: Consolas, 'Courier New', monospace; font-size: 0.9rem;">{{ recommendation_request_json }}</textarea>
+        </div>
+
+        <div class="field" style="margin-bottom: 12px;">
+          <label for="recommend-report">Full Report JSON</label>
+          <textarea id="recommend-report" rows="12" style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: Consolas, 'Courier New', monospace; font-size: 0.9rem;" placeholder='Paste the full report payload here (same format as test.json).'></textarea>
         </div>
 
         <h3 style="margin: 10px 0 6px; font-size: 0.95rem; color: var(--accent);">Recommendation API Response</h3>
@@ -236,7 +247,9 @@
       const btnAnalyzeSelected = document.getElementById("btn-analyze-selected");
       const recommendScanId = document.getElementById("recommend-scan-id");
       const recommendRisks = document.getElementById("recommend-risks");
+      const recommendReport = document.getElementById("recommend-report");
       const btnRecommend = document.getElementById("btn-recommend");
+      const btnRecommendReport = document.getElementById("btn-recommend-report");
       const btnRecommendRefresh = document.getElementById("btn-recommend-refresh");
       const output = document.getElementById("flow-output");
       const recommendOutput = document.getElementById("recommend-output");
@@ -298,6 +311,22 @@
           return parsed.risks;
         }
         throw new Error("Risks JSON must be an array or an object with a risks array.");
+      }
+
+      function parseReportJson() {
+        const raw = recommendReport.value.trim();
+        if (!raw) {
+          throw new Error("Report JSON is required.");
+        }
+
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+          throw new Error("Report JSON must be an object.");
+        }
+        if (!parsed.report_id || !Array.isArray(parsed.products)) {
+          throw new Error("Report JSON must include report_id and products fields.");
+        }
+        return parsed;
       }
 
       async function loadRecommendationPersistence(scanId) {
@@ -416,6 +445,21 @@
           }
         } catch (error) {
           renderRecommendOutput({ detail: error.message || "Invalid recommendation payload." });
+        }
+      });
+
+      btnRecommendReport.addEventListener("click", async function () {
+        try {
+          const reportPayload = parseReportJson();
+          const response = await csrfFetch("/api/recommend/research/report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(reportPayload),
+          });
+          const data = await response.json();
+          renderRecommendOutput({ status: response.status, data });
+        } catch (error) {
+          renderRecommendOutput({ detail: error.message || "Invalid report payload." });
         }
       });
 
