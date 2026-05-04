@@ -5,16 +5,20 @@ from django.db import models
 class Product(models.Model):
 	CATEGORY_FOOD = "food"
 	CATEGORY_COSMETIC = "cosmetic"
+	CATEGORY_UNKNOWN = "unknown"
 	CATEGORY_CHOICES = [
 		(CATEGORY_FOOD, "Food"),
 		(CATEGORY_COSMETIC, "Cosmetic"),
+		(CATEGORY_UNKNOWN, "Unknown"),
 	]
 
 	EXTRACTION_LENS = "lens"
 	EXTRACTION_BARCODE = "barcode"
+	EXTRACTION_UNKNOWN = "unknown"
 	EXTRACTION_CHOICES = [
 		(EXTRACTION_LENS, "Lens"),
 		(EXTRACTION_BARCODE, "Barcode"),
+		(EXTRACTION_UNKNOWN, "Unknown"),
 	]
 
 	name = models.CharField(max_length=255)

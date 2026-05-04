@@ -1,0 +1,1 @@
+"""Configuration for recommendation support modules."""

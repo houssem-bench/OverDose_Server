@@ -30,4 +30,29 @@ Thumbs.db
 
 #model
 *.pt
+
+#env
+.env
 env
+
+
+# Local vector database (ChromaDB) – contains data, not code
+chroma_db/
+
+# User data (assuming this is generated or sensitive)
+User_Types.json
+
+# IDE / editor files
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Environment variables & secrets
+.env
+.env.local
+
+# Logs and databases
+*.log
+*.db
+*.sqlite3

@@ -3,6 +3,7 @@ djangorestframework==3.17.1
 Pillow==11.0.0
 python-dotenv==1.1.1
 pydantic==2.11.7
+pydantic-settings==2.9.1
 httpx==0.28.1
 cloudinary==1.41.0
 opencv-python==4.11.0.86
@@ -10,3 +11,36 @@ numpy==2.2.6
 pyzbar==0.1.9
 pytesseract==0.3.13
 gunicorn
+rich==13.9.4
+duckduckgo-search==8.1.1
+beautifulsoup4==4.13.4
+requests==2.32.3
+
+
+# MCP
+mcp>=1.0.0
+langchain-mcp-adapters>=0.1.0
+
+# LangGraph + Groq
+langgraph>=0.2.0
+langchain-groq>=0.1.0
+langchain-core>=0.2.0
+
+# Neo4j
+neo4j==5.28.1
+
+# Matching
+rapidfuzz>=3.9.0
+
+# Env
+python-dotenv>=1.0.0
+
+# Groq SDK
+groq>=0.37.0
+
+# Streamlit UI
+streamlit>=1.35.0
+
+# Tests
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

@@ -22,6 +22,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	email = models.EmailField(unique=True)
 	gender = models.CharField(max_length=32, choices=GENDER_CHOICES, blank=True)
 	date_of_birth = models.DateField(null=True, blank=True)
+	notes = models.TextField(blank=True, default="")
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
